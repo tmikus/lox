@@ -6,7 +6,7 @@ class Scanner(val source: String) {
 	var current: Int = 0
 	var line: Int = 0
 
-	public fun scanTokens(): List<Token> {
+	fun scanTokens(): List<Token> {
 		while (!isAtEnd()) {
 			start = current
 			scanToken()
@@ -27,8 +27,31 @@ class Scanner(val source: String) {
 			'+' -> addToken(PLUS)
 			';' -> addToken(SEMICOLON)
 			'*' -> addToken(STAR)
+			'!' -> addToken(if (match('=')) BANG_EQUAL else BANG)
+			'=' -> addToken(if (match('=')) EQUAL_EQUAL else EQUAL)
+			'<' -> addToken(if (match('=')) LESS_EQUAL else LESS)
+			'>' -> addToken(if (match('=')) GREATER_EQUAL else GREATER)
+			'/' -> if (match('/')) {
+				while (!isAtEnd() && peek() != '\n') advance()
+			} else {
+				addToken(SLASH)
+			}
+			' ', '\r', '\t' -> {}
+			'\n' -> line++
 			else -> Lox.error(line, "Unexpected character.")
 		}
+	}
+
+	private fun match(expected: Char): Boolean {
+		if (isAtEnd()) return false
+		if (source[current] != expected) return false
+		current++
+		return true
+	}
+
+	private fun peek(): Char {
+		if (isAtEnd()) return '\u0000'
+		return source[current]
 	}
 
 	private fun addToken(type: TokenType) {
