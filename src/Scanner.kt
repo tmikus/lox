@@ -5,6 +5,24 @@ class Scanner(val source: String) {
 	var start: Int = 0
 	var current: Int = 0
 	var line: Int = 0
+	val keywords: HashMap<String, TokenType> = hashMapOf(
+		"and" to AND,
+			"class" to CLASS,
+			"else" to ELSE,
+			"false" to FALSE,
+			"for" to FOR,
+			"fun" to FUN,
+			"if" to IF,
+			"nil" to NIL,
+			"or" to OR,
+			"print" to PRINT,
+			"return" to RETURN,
+			"super" to SUPER,
+			"this" to THIS,
+			"true" to TRUE,
+			"var" to VAR,
+			"while" to WHILE
+	)
 
 	fun scanTokens(): List<Token> {
 		while (!isAtEnd()) {
@@ -49,7 +67,10 @@ class Scanner(val source: String) {
 
 	private fun identifier() {
 		while (isAlphaNumberic(peek())) advance()
-		addToken(IDENTIFIER)
+
+		val text = source.substring(start, current)
+		val token = keywords.getOrDefault(text, IDENTIFIER)
+		addToken(token)
 	}
 
 	private fun number() {
