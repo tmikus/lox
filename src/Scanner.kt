@@ -1,11 +1,11 @@
 import TokenType.*
 
-class Scanner(val source: String) {
-	val tokens: MutableList<Token> = ArrayList()
-	var start: Int = 0
-	var current: Int = 0
-	var line: Int = 0
-	val keywords: HashMap<String, TokenType> = hashMapOf(
+class Scanner(private val source: String) {
+	private val tokens: MutableList<Token> = ArrayList()
+	private var start: Int = 0
+	private var current: Int = 0
+	private var line: Int = 0
+	private val keywords: HashMap<String, TokenType> = hashMapOf(
 		"and" to AND,
 			"class" to CLASS,
 			"else" to ELSE,
@@ -50,18 +50,20 @@ class Scanner(val source: String) {
 			'=' -> addToken(if (match('=')) EQUAL_EQUAL else EQUAL)
 			'<' -> addToken(if (match('=')) LESS_EQUAL else LESS)
 			'>' -> addToken(if (match('=')) GREATER_EQUAL else GREATER)
-			'/' -> if (match('/')) {
-				while (!isAtEnd() && peek() != '\n') advance()
-			} else {
-				addToken(SLASH)
-			}
+			'/' ->
+				when {
+					match('/') -> while (!isAtEnd() && peek() != '\n') advance()
+					else -> addToken(SLASH)
+				}
 			' ', '\r', '\t' -> {}
 			'\n' -> line++
 			'"' -> string()
 			else ->
-				if (isDigit(c)) number()
-				else if (isAlpha(c)) identifier()
-				else Lox.error(line, "Unexpected character.")
+				when {
+					isDigit(c) -> number()
+					isAlpha(c) -> identifier()
+					else -> Lox.error(line, "Unexpected character.")
+				}
 		}
 	}
 
