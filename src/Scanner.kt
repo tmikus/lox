@@ -16,7 +16,8 @@ class Scanner(val source: String) {
 	}
 
 	private fun scanToken() {
-		when (advance()) {
+		val c = advance()
+		when (c) {
 			'(' -> addToken(LEFT_PAREN)
 			')' -> addToken(RIGHT_PAREN)
 			'{' -> addToken(LEFT_BRACE)
@@ -39,8 +40,27 @@ class Scanner(val source: String) {
 			' ', '\r', '\t' -> {}
 			'\n' -> line++
 			'"' -> string()
-			else -> Lox.error(line, "Unexpected character.")
+			else ->
+				if (isDigit(c)) number()
+				else if (isAlpha(c)) identifier()
+				else Lox.error(line, "Unexpected character.")
 		}
+	}
+
+	private fun identifier() {
+		while (isAlphaNumberic(peek())) advance()
+		addToken(IDENTIFIER)
+	}
+
+	private fun number() {
+		while (isDigit(peek())) advance()
+
+		if (peek() == '.' && isDigit(peekNext())) {
+			advance()
+			while(isDigit(peek())) advance()
+		}
+
+		addToken(NUMBER, source.substring(start, current).toDouble())
 	}
 
 	private fun string() {
@@ -70,6 +90,25 @@ class Scanner(val source: String) {
 	private fun peek(): Char {
 		if (isAtEnd()) return '\u0000'
 		return source[current]
+	}
+
+	private fun peekNext(): Char {
+		if (current + 1 >= source.length) return '\u0000'
+		return source[current + 1]
+	}
+
+	private fun isAlpha(c: Char): Boolean {
+		return (c in 'a'..'z')
+			|| (c in 'A'..'Z')
+		  || (c == '_')
+	}
+
+	private fun isAlphaNumberic(c: Char): Boolean {
+		return isAlpha(c) || isDigit(c)
+	}
+
+	private fun isDigit(c: Char): Boolean {
+		return c in '0'..'9'
 	}
 
 	private fun addToken(type: TokenType) {
