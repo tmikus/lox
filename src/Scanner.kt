@@ -38,8 +38,26 @@ class Scanner(val source: String) {
 			}
 			' ', '\r', '\t' -> {}
 			'\n' -> line++
+			'"' -> string()
 			else -> Lox.error(line, "Unexpected character.")
 		}
+	}
+
+	private fun string() {
+		while (!isAtEnd() && peek() != '"') {
+			if (peek() == '\n') line++
+			advance()
+		}
+
+		if (isAtEnd()) {
+			Lox.error(line, "Unterminated string.")
+			return
+		}
+
+		advance()
+
+		val value = source.substring(start + 1, current - 1)
+		addToken(STRING, value)
 	}
 
 	private fun match(expected: Char): Boolean {
