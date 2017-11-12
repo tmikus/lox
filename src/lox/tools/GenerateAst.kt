@@ -11,7 +11,7 @@ fun main(args: Array<String>) {
 	defineAst(outputDir, "Expr", hashMapOf(
 			"Binary" to "val left: Expr, val operator: Token, val right: Expr",
 			"Grouping" to "val expression: Expr",
-			"Literal" to "val value: Any",
+			"Literal" to "val value: Any?",
 			"Unary" to "val operator: Token, val right: Expr"
 	))
 }

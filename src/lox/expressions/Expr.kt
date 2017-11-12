@@ -31,7 +31,7 @@ data class Unary(val operator: Token, val right: Expr): Expr() {
   }
 }
 
-data class Literal(val value: Any): Expr() {
+data class Literal(val value: Any?): Expr() {
   override fun <R> accept(visitor: Visitor<R>): R {
     return visitor.visitLiteralExpr(this)
   }
