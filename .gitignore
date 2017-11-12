@@ -36,6 +36,9 @@ out/
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 
+# IntelliJ shelf
+.idea/shelf/
+
 # JIRA plugin
 atlassian-ide-plugin.xml
 
