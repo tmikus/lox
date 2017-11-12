@@ -24,7 +24,7 @@ fun defineAst(outputDir: String, baseName: String, types: HashMap<String, String
 	writer.println()
 	writer.println("import lox.Token")
 	writer.println()
-	writer.println("abstract class $baseName() {")
+	writer.println("abstract class $baseName {")
   writer.println("  abstract fun <R> accept(visitor: Visitor<R>): R")
   writer.println("}")
 
@@ -32,13 +32,13 @@ fun defineAst(outputDir: String, baseName: String, types: HashMap<String, String
 
 	types.forEach { (className, fields) -> defineType(writer, baseName, className, fields) }
 
-	writer.println()
+//	writer.println()
 	writer.close()
 }
 
 fun defineVisitor(writer: PrintWriter, baseName: String, types: HashMap<String, String>) {
   writer.println()
-  writer.println("interface Visitor<R> {")
+  writer.println("interface Visitor<out R> {")
   types.forEach { (className, _) ->
     writer.println("  fun visit$className$baseName(${className.toLowerCase()}: $className): R")
   }

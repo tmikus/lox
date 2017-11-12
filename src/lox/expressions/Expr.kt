@@ -2,11 +2,11 @@ package lox.expressions
 
 import lox.Token
 
-abstract class Expr() {
+abstract class Expr {
   abstract fun <R> accept(visitor: Visitor<R>): R
 }
 
-interface Visitor<R> {
+interface Visitor<out R> {
   fun visitGroupingExpr(grouping: Grouping): R
   fun visitBinaryExpr(binary: Binary): R
   fun visitUnaryExpr(unary: Unary): R
@@ -36,4 +36,3 @@ data class Literal(val value: Any?): Expr() {
     return visitor.visitLiteralExpr(this)
   }
 }
-
