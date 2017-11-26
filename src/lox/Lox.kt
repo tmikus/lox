@@ -13,12 +13,15 @@ fun main(args: Array<String>) {
 }
 
 object Lox {
+  private val interpreter = Interpreter()
   private var hadError = false
+  private var hadRuntimeError = false
 
   fun runFile(path: String) {
     val bytes = Files.readAllBytes(Paths.get(path))
     runSource(String(bytes, Charset.defaultCharset()))
     if (hadError) System.exit(65)
+    if (hadRuntimeError) System.exit(70)
   }
 
   fun runPrompt() {
@@ -37,7 +40,9 @@ object Lox {
 
     if (hadError) return
 
-    println(AstPrinter().print(expression!!))
+    if (expression != null) {
+      interpreter.interpret(expression)
+    }
   }
 
   fun error(line: Int, message: String) {
@@ -50,6 +55,11 @@ object Lox {
     } else {
       report(token.line, " at '${token.lexeme}'", message);
     }
+  }
+
+  fun runtimeError(error: RuntimeError) {
+    System.err.println("${error.message}\n[line ${error.token.line}]")
+    hadRuntimeError = true
   }
 
   private fun report(line: Int, where: String, message: String) {
