@@ -69,7 +69,6 @@ class Interpreter : Visitor<Any?> {
     }
   }
 
-  // TODO: Check the return type
   override fun visitLiteralExpr(literal: Literal): Any? = literal.value
 
   override fun visitGroupingExpr(grouping: Grouping): Any? = evaluate(grouping.expression)
