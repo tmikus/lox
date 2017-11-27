@@ -40,7 +40,7 @@ class Parser(private val tokens: List<Token>) {
       val right = addition()
       expr = Binary(expr, operator, right)
     }
-    return expr;
+    return expr
   }
 
   private fun addition(): Expr {
