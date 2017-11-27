@@ -1,11 +1,7 @@
 package lox
 
-import lox.expressions.Expr
 import lox.TokenType.*
-import lox.expressions.Binary
-import lox.expressions.Grouping
-import lox.expressions.Literal
-import lox.expressions.Unary
+import lox.expressions.*
 
 class Parser(private val tokens: List<Token>) {
 
@@ -13,12 +9,29 @@ class Parser(private val tokens: List<Token>) {
 
   private var current: Int = 0
 
-  fun parse(): Expr? {
-    return try {
-      expression()
-    } catch (error: ParseError) {
-      null
+  fun parse(): List<Stmt> {
+    val statements = ArrayList<Stmt>()
+    while (!isAtEnd()) {
+      statements.add(statement())
     }
+    return statements
+  }
+
+  private fun statement(): Stmt {
+    if (match(PRINT)) return printStatement()
+    return expressionStatement()
+  }
+
+  private fun printStatement(): Stmt {
+    val value = expression()
+    consume(SEMICOLON, "Expect ';' after value.")
+    return Print(value)
+  }
+
+  private fun expressionStatement(): Stmt {
+    val expr = expression()
+    consume(SEMICOLON, "Expect ';' after expression.")
+    return Expression(expr)
   }
 
   private fun expression(): Expr = equality()

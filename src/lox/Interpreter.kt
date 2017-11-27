@@ -3,11 +3,19 @@ package lox
 import lox.expressions.*
 import lox.TokenType.*
 
-class Interpreter : ExprVisitor<Any?> {
-  fun interpret(expr: Expr) {
+class Interpreter : ExprVisitor<Any?>, StmtVisitor<Unit> {
+  override fun visitExpressionStmt(expression: Expression) {
+    evaluate(expression.expression)
+  }
+
+  override fun visitPrintStmt(print: Print) {
+    val value = evaluate(print.expression)
+    println(stringify(value))
+  }
+
+  fun interpret(statements: List<Stmt>) {
     try {
-      val value = evaluate(expr)
-      println(stringify(value))
+      statements.forEach { statement -> execute(statement) }
     } catch (error: RuntimeError) {
       Lox.runtimeError(error)
     }
@@ -86,6 +94,8 @@ class Interpreter : ExprVisitor<Any?> {
   }
 
   private fun evaluate(expr: Expr): Any? = expr.accept(this)
+
+  private fun execute(stmt: Stmt) = stmt.accept(this)
 
   private fun isTruthy(obj: Any?): Boolean {
     if (obj == null) return false
