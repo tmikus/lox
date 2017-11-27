@@ -14,6 +14,10 @@ fun main(args: Array<String>) {
       "Literal" to "val value: Any?",
       "Unary" to "val operator: Token, val right: Expr"
   ))
+  defineAst(outputDir, "Stmt", hashMapOf(
+      "Expression" to "val expression: Expr",
+      "Print" to "val expression: Expr"
+  ))
 }
 
 fun defineAst(outputDir: String, baseName: String, types: HashMap<String, String>) {
@@ -25,7 +29,7 @@ fun defineAst(outputDir: String, baseName: String, types: HashMap<String, String
   writer.println("import lox.Token")
   writer.println()
   writer.println("abstract class $baseName {")
-  writer.println("  abstract fun <R> accept(visitor: Visitor<R>): R")
+  writer.println("  abstract fun <R> accept(visitor: ${baseName}Visitor<R>): R")
   writer.println("}")
 
   defineVisitor(writer, baseName, types)
@@ -38,7 +42,7 @@ fun defineAst(outputDir: String, baseName: String, types: HashMap<String, String
 
 fun defineVisitor(writer: PrintWriter, baseName: String, types: HashMap<String, String>) {
   writer.println()
-  writer.println("interface Visitor<out R> {")
+  writer.println("interface ${baseName}Visitor<out R> {")
   types.forEach { (className, _) ->
     writer.println("  fun visit$className$baseName(${className.toLowerCase()}: $className): R")
   }
@@ -48,7 +52,7 @@ fun defineVisitor(writer: PrintWriter, baseName: String, types: HashMap<String, 
 fun defineType(writer: PrintWriter, baseName: String, className: String, fields: String) {
   writer.println()
   writer.println("data class $className($fields): $baseName() {")
-  writer.println("  override fun <R> accept(visitor: Visitor<R>): R {")
+  writer.println("  override fun <R> accept(visitor: ${baseName}Visitor<R>): R {")
   writer.println("    return visitor.visit$className$baseName(this)")
   writer.println("  }")
   writer.println("}")

@@ -6,7 +6,7 @@ import lox.expressions.Unary
 import lox.expressions.Binary
 
 
-class AstPrinter : Visitor<String> {
+class AstPrinter : ExprVisitor<String> {
   fun print(expr: Expr): String {
     return expr.accept(this)
   }

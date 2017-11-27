@@ -3,7 +3,7 @@ package lox
 import lox.expressions.*
 import lox.TokenType.*
 
-class Interpreter : Visitor<Any?> {
+class Interpreter : ExprVisitor<Any?> {
   fun interpret(expr: Expr) {
     try {
       val value = evaluate(expr)
