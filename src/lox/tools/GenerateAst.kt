@@ -9,6 +9,7 @@ fun main(args: Array<String>) {
   }
   val outputDir = args[0]
   defineAst(outputDir, "Expr", hashMapOf(
+      "Assign" to "val name: Token, val value: Expr",
       "Binary" to "val left: Expr, val operator: Token, val right: Expr",
       "Grouping" to "val expression: Expr",
       "Literal" to "val value: Any?",

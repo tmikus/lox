@@ -4,6 +4,8 @@ import lox.expressions.*
 import lox.TokenType.*
 
 class Interpreter : ExprVisitor<Any?>, StmtVisitor<Unit> {
+  private val environment = Environment()
+
   override fun visitExpressionStmt(stmt: Expression) {
     evaluate(stmt.expression)
   }
@@ -14,6 +16,8 @@ class Interpreter : ExprVisitor<Any?>, StmtVisitor<Unit> {
   }
 
   override fun visitVarStmt(stmt: Var) {
+    val value = if (stmt.initializer != null) evaluate(stmt.initializer) else null
+    environment.define(stmt.name.lexeme, value)
   }
 
   fun interpret(statements: List<Stmt>) {
@@ -22,6 +26,12 @@ class Interpreter : ExprVisitor<Any?>, StmtVisitor<Unit> {
     } catch (error: RuntimeError) {
       Lox.runtimeError(error)
     }
+  }
+
+  override fun visitAssignExpr(expr: Assign): Any? {
+    val value = evaluate(expr.value)
+    environment.assign(expr.name, value)
+    return value
   }
 
   override fun visitBinaryExpr(expr: Binary): Any? {
@@ -84,9 +94,7 @@ class Interpreter : ExprVisitor<Any?>, StmtVisitor<Unit> {
 
   override fun visitGroupingExpr(expr: Grouping): Any? = evaluate(expr.expression)
 
-  override fun visitVariableExpr(expr: Variable): Any? {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+  override fun visitVariableExpr(expr: Variable): Any? = environment.get(expr.name)
 
   private fun checkNumberOperand(operator: Token, operand: Any?) {
     if (operand !is Double) {

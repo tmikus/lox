@@ -7,11 +7,18 @@ abstract class Expr {
 }
 
 interface ExprVisitor<out R> {
+  fun visitAssignExpr(expr: Assign): R
   fun visitGroupingExpr(expr: Grouping): R
   fun visitBinaryExpr(expr: Binary): R
   fun visitVariableExpr(expr: Variable): R
   fun visitUnaryExpr(expr: Unary): R
   fun visitLiteralExpr(expr: Literal): R
+}
+
+data class Assign(val name: Token, val value: Expr): Expr() {
+  override fun <R> accept(visitor: ExprVisitor<R>): R {
+    return visitor.visitAssignExpr(this)
+  }
 }
 
 data class Grouping(val expression: Expr): Expr() {
