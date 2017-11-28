@@ -7,10 +7,11 @@ abstract class Expr {
 }
 
 interface ExprVisitor<out R> {
-  fun visitGroupingExpr(grouping: Grouping): R
-  fun visitBinaryExpr(binary: Binary): R
-  fun visitUnaryExpr(unary: Unary): R
-  fun visitLiteralExpr(literal: Literal): R
+  fun visitGroupingExpr(expr: Grouping): R
+  fun visitBinaryExpr(expr: Binary): R
+  fun visitVariableExpr(expr: Variable): R
+  fun visitUnaryExpr(expr: Unary): R
+  fun visitLiteralExpr(expr: Literal): R
 }
 
 data class Grouping(val expression: Expr): Expr() {
@@ -22,6 +23,12 @@ data class Grouping(val expression: Expr): Expr() {
 data class Binary(val left: Expr, val operator: Token, val right: Expr): Expr() {
   override fun <R> accept(visitor: ExprVisitor<R>): R {
     return visitor.visitBinaryExpr(this)
+  }
+}
+
+data class Variable(val name: Token): Expr() {
+  override fun <R> accept(visitor: ExprVisitor<R>): R {
+    return visitor.visitVariableExpr(this)
   }
 }
 

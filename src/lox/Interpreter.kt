@@ -4,13 +4,16 @@ import lox.expressions.*
 import lox.TokenType.*
 
 class Interpreter : ExprVisitor<Any?>, StmtVisitor<Unit> {
-  override fun visitExpressionStmt(expression: Expression) {
-    evaluate(expression.expression)
+  override fun visitExpressionStmt(stmt: Expression) {
+    evaluate(stmt.expression)
   }
 
-  override fun visitPrintStmt(print: Print) {
-    val value = evaluate(print.expression)
+  override fun visitPrintStmt(stmt: Print) {
+    val value = evaluate(stmt.expression)
     println(stringify(value))
+  }
+
+  override fun visitVarStmt(stmt: Var) {
   }
 
   fun interpret(statements: List<Stmt>) {
@@ -21,42 +24,42 @@ class Interpreter : ExprVisitor<Any?>, StmtVisitor<Unit> {
     }
   }
 
-  override fun visitBinaryExpr(binary: Binary): Any? {
-    val left = evaluate(binary.left)
-    val right = evaluate(binary.right)
+  override fun visitBinaryExpr(expr: Binary): Any? {
+    val left = evaluate(expr.left)
+    val right = evaluate(expr.right)
 
-    return when (binary.operator.type) {
+    return when (expr.operator.type) {
       MINUS -> {
-        checkNumberOperands(binary.operator, left, right)
+        checkNumberOperands(expr.operator, left, right)
         (left as Double) - (right as Double)
       }
       PLUS -> {
         if (left is Double && right is Double) left + right
         else if (left is String && right is String) left + right
-        else throw RuntimeError(binary.operator, "Operands must be two numbers or two strings.")
+        else throw RuntimeError(expr.operator, "Operands must be two numbers or two strings.")
       }
       SLASH -> {
-        checkNumberOperands(binary.operator, left, right)
+        checkNumberOperands(expr.operator, left, right)
         (left as Double) / (right as Double)
       }
       STAR -> {
-        checkNumberOperands(binary.operator, left, right)
+        checkNumberOperands(expr.operator, left, right)
         (left as Double) * (right as Double)
       }
       GREATER -> {
-        checkNumberOperands(binary.operator, left, right)
+        checkNumberOperands(expr.operator, left, right)
         (left as Double) > (right as Double)
       }
       GREATER_EQUAL -> {
-        checkNumberOperands(binary.operator, left, right)
+        checkNumberOperands(expr.operator, left, right)
         (left as Double) >= (right as Double)
       }
       LESS -> {
-        checkNumberOperands(binary.operator, left, right)
+        checkNumberOperands(expr.operator, left, right)
         (left as Double) < (right as Double)
       }
       LESS_EQUAL -> {
-        checkNumberOperands(binary.operator, left, right)
+        checkNumberOperands(expr.operator, left, right)
         (left as Double) <= (right as Double)
       }
       BANG_EQUAL -> !isEqual(left, right)
@@ -65,21 +68,25 @@ class Interpreter : ExprVisitor<Any?>, StmtVisitor<Unit> {
     }
   }
 
-  override fun visitUnaryExpr(unary: Unary): Any? {
-    val right = evaluate(unary.right)
-    return when (unary.operator.type) {
+  override fun visitUnaryExpr(expr: Unary): Any? {
+    val right = evaluate(expr.right)
+    return when (expr.operator.type) {
       BANG -> !isTruthy(right)
       MINUS -> {
-        checkNumberOperand(unary.operator, right)
+        checkNumberOperand(expr.operator, right)
         -(right as Double)
       }
       else -> null
     }
   }
 
-  override fun visitLiteralExpr(literal: Literal): Any? = literal.value
+  override fun visitLiteralExpr(expr: Literal): Any? = expr.value
 
-  override fun visitGroupingExpr(grouping: Grouping): Any? = evaluate(grouping.expression)
+  override fun visitGroupingExpr(expr: Grouping): Any? = evaluate(expr.expression)
+
+  override fun visitVariableExpr(expr: Variable): Any? {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
 
   private fun checkNumberOperand(operator: Token, operand: Any?) {
     if (operand !is Double) {

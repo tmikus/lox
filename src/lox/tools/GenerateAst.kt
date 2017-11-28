@@ -12,11 +12,13 @@ fun main(args: Array<String>) {
       "Binary" to "val left: Expr, val operator: Token, val right: Expr",
       "Grouping" to "val expression: Expr",
       "Literal" to "val value: Any?",
-      "Unary" to "val operator: Token, val right: Expr"
+      "Unary" to "val operator: Token, val right: Expr",
+      "Variable" to "val name: Token"
   ))
   defineAst(outputDir, "Stmt", hashMapOf(
       "Expression" to "val expression: Expr",
-      "Print" to "val expression: Expr"
+      "Print" to "val expression: Expr",
+      "Var" to "val name: Token, val initializer: Expr?"
   ))
 }
 
@@ -36,7 +38,6 @@ fun defineAst(outputDir: String, baseName: String, types: HashMap<String, String
 
   types.forEach { (className, fields) -> defineType(writer, baseName, className, fields) }
 
-//	writer.println()
   writer.close()
 }
 
@@ -44,7 +45,7 @@ fun defineVisitor(writer: PrintWriter, baseName: String, types: HashMap<String, 
   writer.println()
   writer.println("interface ${baseName}Visitor<out R> {")
   types.forEach { (className, _) ->
-    writer.println("  fun visit$className$baseName(${className.toLowerCase()}: $className): R")
+    writer.println("  fun visit$className$baseName(${baseName.toLowerCase()}: $className): R")
   }
   writer.println("}")
 }

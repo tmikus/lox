@@ -12,9 +12,20 @@ class Parser(private val tokens: List<Token>) {
   fun parse(): List<Stmt> {
     val statements = ArrayList<Stmt>()
     while (!isAtEnd()) {
-      statements.add(statement())
+      val stmt = declaration()
+      stmt?.let { statements.add(stmt) }
     }
     return statements
+  }
+
+  private fun declaration(): Stmt? {
+    try {
+      if (match(VAR)) return varDeclaration()
+      return statement()
+    } catch (error: ParseError) {
+      synchronize()
+      return null
+    }
   }
 
   private fun statement(): Stmt {
@@ -26,6 +37,13 @@ class Parser(private val tokens: List<Token>) {
     val value = expression()
     consume(SEMICOLON, "Expect ';' after value.")
     return Print(value)
+  }
+
+  private fun varDeclaration(): Stmt {
+    val name = consume(IDENTIFIER, "Expect variable name.")
+    val initializer = if (match(EQUAL)) expression() else null
+    consume(SEMICOLON, "Expected ';' after variable declaration.")
+    return Var(name, initializer)
   }
 
   private fun expressionStatement(): Stmt {
@@ -91,6 +109,9 @@ class Parser(private val tokens: List<Token>) {
     if (match(NIL)) return Literal(null)
     if (match(NUMBER, STRING)) {
       return Literal(previous().literal)
+    }
+    if (match(IDENTIFIER)) {
+      return Variable(previous())
     }
     if (match(LEFT_PAREN)) {
       val expr = expression()
