@@ -4,7 +4,11 @@ import lox.expressions.*
 import lox.TokenType.*
 
 class Interpreter : ExprVisitor<Any?>, StmtVisitor<Unit> {
-  private val environment = Environment()
+  private var environment = Environment()
+
+  override fun visitBlockStmt(stmt: Block) {
+    executeBlock(stmt.statements, Environment(environment))
+  }
 
   override fun visitExpressionStmt(stmt: Expression) {
     evaluate(stmt.expression)
@@ -111,6 +115,16 @@ class Interpreter : ExprVisitor<Any?>, StmtVisitor<Unit> {
   private fun evaluate(expr: Expr): Any? = expr.accept(this)
 
   private fun execute(stmt: Stmt) = stmt.accept(this)
+
+  private fun executeBlock(statements: List<Stmt>, environment: Environment) {
+    val previousEnv = this.environment
+    try {
+      this.environment = environment
+      statements.forEach { statement -> execute(statement) }
+    } finally {
+      this.environment = previousEnv
+    }
+  }
 
   private fun isTruthy(obj: Any?): Boolean {
     if (obj == null) return false

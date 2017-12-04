@@ -17,6 +17,7 @@ fun main(args: Array<String>) {
       "Variable" to "val name: Token"
   ))
   defineAst(outputDir, "Stmt", hashMapOf(
+      "Block" to "val statements: List<Stmt>",
       "Expression" to "val expression: Expr",
       "Print" to "val expression: Expr",
       "Var" to "val name: Token, val initializer: Expr?"
